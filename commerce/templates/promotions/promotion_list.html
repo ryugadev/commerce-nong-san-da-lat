@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Quản lý Chương trình Khuyến mãi{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <!-- Header: Tiêu đề, nút thêm khuyến mãi, quay lại Dashboard và form tìm kiếm -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+    <h2 class="mb-3 mb-md-0">Quản lý Khuyến mãi</h2>
+    <div>
+      <a href="{% url 'dashboard' %}" class="btn btn-primary me-2">
+        <i class="fas fa-tachometer-alt me-1"></i> Quay lại Dashboard
+      </a>
+      <a href="{% url 'promotion_create' %}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i> Thêm Khuyến mãi
+      </a>
+    </div>
+  </div>
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-8">
+      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm khuyến mãi..." value="{{ request.GET.q }}">
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-secondary w-100">
+        <i class="fas fa-search me-1"></i> Tìm kiếm
+      </button>
+    </div>
+  </form>
+
+  {% if promotions %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Hình ảnh</th>
+          <th>Tiêu đề</th>
+          <th>Mô tả</th>
+          <th>Sản phẩm</th>
+          <th>Ngày bắt đầu</th>
+          <th>Ngày kết thúc</th>
+          <th>Hoạt động</th>
+          <th class="text-center">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for promo in promotions %}
+        <tr>
+          <td>{{ promo.id }}</td>
+          <td>
+            {% if promo.image %}
+              <img src="{{ promo.image.url }}" alt="{{ promo.title }}" class="img-thumbnail" style="max-width: 100px;">
+            {% else %}
+              <span class="text-muted">Không có ảnh</span>
+            {% endif %}
+          </td>
+          <td>{{ promo.title }}</td>
+          <td>{{ promo.description|truncatewords:10 }}</td>
+          <td>
+            {% if promo.products.all %}
+              {% for prod in promo.products.all %}
+                <span class="badge bg-info text-dark me-1">{{ prod.name }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="text-muted">Không có</span>
+            {% endif %}
+          </td>
+          <td>{{ promo.start_date|date:"d/m/Y" }}</td>
+          <td>{{ promo.end_date|date:"d/m/Y" }}</td>
+          <td>
+            {% if promo.active %}
+              <span class="badge bg-success">Có</span>
+            {% else %}
+              <span class="badge bg-secondary">Không</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <a href="{% url 'promotion_update' promo.id %}" class="btn btn-sm btn-warning me-1">
+              <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'promotion_delete' promo.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn xóa khuyến mãi này?');">
+              <i class="fas fa-trash-alt"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Phân trang -->
+  {% if promotions.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if promotions.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ promotions.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Trước">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      {% endif %}
+      {% for num in promotions.paginator.page_range %}
+        {% if promotions.number == num %}
+        <li class="page-item active" aria-current="page">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      {% if promotions.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ promotions.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Sau">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <p class="text-center">Không có chương trình khuyến mãi nào.</p>
+  {% endif %}
+</div>
+
+<!-- Inline CSS (có thể chuyển ra file CSS riêng) -->
+<style>
+  .badge {
+    font-size: 0.8rem;
+  }
+  .table img {
+    max-width: 100px;
+    object-fit: cover;
+  }
+  .btn i {
+    vertical-align: middle;
+  }
+</style>
+{% endblock %}

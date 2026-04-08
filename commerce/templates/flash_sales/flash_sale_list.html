@@ -1,0 +1,98 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Danh sách Flash Sale{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <h2>Danh sách Flash Sale</h2>
+    <!-- Nút quay lại Dashboard -->
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+    </a>
+  </div>
+  <div class="mb-3">
+    <a href="{% url 'flash_sale_create' %}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Thêm Flash Sale mới
+    </a>
+  </div>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Sản phẩm</th>
+        <th>Giảm (%)</th>
+        <th>Giá Flash Sale</th>
+        <th>Thời gian</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for flash_sale in page_obj %}
+      <tr>
+        <td>{{ flash_sale.product.name }}</td>
+        <td>{{ flash_sale.discount_percent }}%</td>
+        <td>{{ flash_sale.sale_price|floatformat:0 }} VND</td>
+        <td>{{ flash_sale.start_date }} - {{ flash_sale.end_date }}</td>
+        <td>
+          {% if flash_sale.active %}
+            <span class="badge badge-success">Active</span>
+          {% else %}
+            <span class="badge badge-secondary">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'flash_sale_update' flash_sale.id %}" class="btn btn-sm btn-warning">
+            <i class="fas fa-edit"></i> Sửa
+          </a>
+          <a href="{% url 'flash_sale_delete' flash_sale.id %}" class="btn btn-sm btn-danger">
+            <i class="fas fa-trash-alt"></i> Xóa
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center">Không có chương trình Flash Sale nào.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <!-- Phân trang -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">&laquo;</span>
+      </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">&raquo;</span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+{% endblock %}

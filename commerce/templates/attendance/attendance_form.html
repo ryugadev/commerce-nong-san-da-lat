@@ -1,0 +1,33 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}Chấm công{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-info text-white">
+      <h3 class="card-title mb-0">
+        <i class="fas fa-clock"></i>
+        {% if form.instance.pk %}
+          Cập nhật Chấm công
+        {% else %}
+          Tạo Bản ghi Chấm công
+        {% endif %}
+      </h3>
+    </div>
+    <div class="card-body">
+      <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary me-2">
+            <i class="fas fa-save"></i> Lưu
+          </button>
+          <a href="{% url 'attendance_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

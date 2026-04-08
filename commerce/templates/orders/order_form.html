@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Đơn hàng{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2>{{ action }} Đơn hàng</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <!-- Form chính cho đơn hàng -->
+    <div class="mb-3">
+      <label class="form-label">Người đặt</label>
+      {{ order_form.user }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Tổng tiền</label>
+      {{ order_form.total_price }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Trạng thái</label>
+      {{ order_form.status }}
+    </div>
+    <hr>
+    <!-- Form chi tiết đơn hàng -->
+    <h4>Thêm sản phẩm vào đơn hàng</h4>
+    <div class="mb-3">
+      <label class="form-label">Chọn sản phẩm (Mã - Tên)</label>
+      {{ order_item_form.product }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Số lượng</label>
+      {{ order_item_form.quantity }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Ghi chú</label>
+      {{ order_item_form.note }}
+    </div>
+    <button type="submit" class="btn btn-success">
+      <i class="fas fa-save"></i> Lưu
+    </button>
+    <a href="{% url 'order_list' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+  </form>
+</div>
+{% endblock %}

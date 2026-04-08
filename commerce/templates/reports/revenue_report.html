@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Báo cáo Doanh thu{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <!-- Nút quay lại Dashboard -->
+  <div class="mb-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h3>Báo cáo Doanh thu</h3>
+    </div>
+    <div class="card-body">
+      <!-- Form lọc theo khoảng thời gian -->
+      <form method="GET" class="mb-4 row g-3">
+        <div class="col-md-4">
+          <label for="start_date" class="form-label">Từ ngày</label>
+          <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div class="col-md-4">
+          <label for="end_date" class="form-label">Đến ngày</label>
+          <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div class="col-md-4 align-self-end">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-search-dollar"></i> Lọc
+          </button>
+        </div>
+      </form>
+
+      <!-- Thống kê tổng hợp -->
+      <div class="mb-4">
+        <h5>Tổng số đơn hàng: {{ order_count|intcomma }}</h5>
+        <h5>Tổng doanh thu: {{ total_revenue|floatformat:"-2"|intcomma }} VND</h5>
+        <h5>Giá trị đơn hàng trung bình: {{ average_order|floatformat:"-2"|intcomma }} VND</h5>
+      </div>
+
+      <!-- Danh sách các đơn hàng -->
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Khách hàng</th>
+              <th>Tổng tiền</th>
+              <th>Ngày đặt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>{{ order.id|intcomma }}</td>
+              <td>{{ order.user.username }}</td>
+              <td>{{ order.total_price|floatformat:"-2"|intcomma }} VND</td>
+              <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">Không có dữ liệu.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân trang tách biệt -->
+      <nav id="paginationNav" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if orders.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="First">
+              <span aria-hidden="true">&laquo;&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ orders.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <span class="page-link">Trang {{ orders.number }} / {{ orders.paginator.num_pages }}</span>
+          </li>
+          {% if orders.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ orders.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ orders.paginator.num_pages }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}" aria-label="Last">
+              <span aria-hidden="true">&raquo;&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Inline JavaScript để cuộn lên đầu trang khi phân trang -->
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    const paginationLinks = document.querySelectorAll("#paginationNav a.page-link");
+    paginationLinks.forEach(function(link) {
+      link.addEventListener("click", function(){
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      });
+    });
+  });
+</script>
+{% endblock %}

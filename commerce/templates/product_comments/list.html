@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Quản lý Bình luận Sản phẩm{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Nút quay lại Dashboard -->
+  <div class="mb-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">
+        <i class="fas fa-comments"></i> Quản lý Bình luận Sản phẩm
+      </h4>
+      <!-- Form tìm kiếm -->
+      <form method="get" class="d-flex" style="max-width: 300px;">
+        <input type="text" name="q" class="form-control me-2" placeholder="Tìm kiếm bình luận..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn btn-light">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <a href="{% url 'product_comment_create' %}" class="btn btn-success">
+          <i class="fas fa-plus"></i> Thêm mới bình luận
+        </a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Sản phẩm</th>
+              <th>Người dùng</th>
+              <th>Nội dung</th>
+              <th>Đánh giá</th>
+              <th>Ngày tạo</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for comment in comments %}
+            <tr>
+              <td>{{ comment.id }}</td>
+              <td>
+                <i class="fas fa-box"></i> {{ comment.product.name }}
+              </td>
+              <td>
+                <i class="fas fa-user"></i> {{ comment.user.username }}
+              </td>
+              <td>{{ comment.content|truncatewords:10 }}</td>
+              <td>
+                <i class="fas fa-star text-warning"></i> {{ comment.rating }}
+              </td>
+              <td>
+                <i class="fas fa-calendar-alt"></i> {{ comment.created_at|date:"d/m/Y H:i" }}
+              </td>
+              <td>
+                <a href="{% url 'product_comment_update' comment.pk %}" class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'product_comment_delete' comment.pk %}" class="btn btn-sm btn-danger" title="Xóa">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center">Không có bình luận nào.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân trang -->
+      {% if is_paginated %}
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Previous">
+              <span aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+          </li>
+          {% endif %}
+
+          {% for num in paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Next">
+              <span aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

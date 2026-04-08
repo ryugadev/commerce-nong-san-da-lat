@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load humanize myfilters %}
+{% block title %}Giỏ hàng{% endblock %}
+
+{% block content %}
+{% include "partials/header.html" %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">Giỏ hàng của bạn</h2>
+  {% if cart_items %}
+  <form id="cart-form" action="{% url 'cart_update' %}" method="post">
+    {% csrf_token %}
+    <div class="row">
+      {% for item in cart_items %}
+      <div class="col-md-12 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <!-- Ảnh sản phẩm -->
+              <div class="col-md-2 text-center">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                  <div class="bg-light d-flex align-items-center justify-content-center" style="width:80px; height:80px;">
+                    <i class="fas fa-image fa-2x text-muted"></i>
+                  </div>
+                {% endif %}
+              </div>
+              <!-- Thông tin sản phẩm -->
+              <div class="col-md-4">
+                <h5 class="mb-1"><i class="fas fa-tag"></i> {{ item.product.name }}</h5>
+                <p class="mb-1 text-muted">{{ item.product.description|truncatechars:100 }}</p>
+              </div>
+              <!-- Giá và số lượng -->
+              <div class="col-md-2 text-center">
+                <p class="mb-0">
+                  <i class="fas fa-dollar-sign"></i>
+                  <!-- Sử dụng final_price từ context -->
+                  <span class="price" data-price="{{ item.final_price }}">{{ item.final_price|floatformat:2 }}</span> VND
+                </p>
+              </div>
+              <div class="col-md-2 text-center">
+                <input type="number" name="quantity_{{ item.product.id }}" value="{{ item.quantity }}" min="1" class="form-control quantity-input" style="width:80px; margin:0 auto;">
+              </div>
+              <!-- Thành tiền -->
+              <div class="col-md-1 text-center">
+                <p class="mb-0 fw-bold subtotal">{{ item.subtotal|floatformat:2 }} VND</p>
+              </div>
+              <!-- Hành động -->
+              <div class="col-md-1 text-center">
+                <a href="{% url 'cart_remove' item.product.id %}" class="btn btn-danger btn-sm" title="Xóa sản phẩm">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <h4>Tổng cộng: <span id="total-price">{{ total_price|floatformat:2 }} VND</span></h4>
+      <div>
+        <button type="submit" class="btn btn-primary me-2">
+          <i class="fas fa-sync"></i> Cập nhật giỏ hàng
+        </button>
+        <a href="{% url 'checkout' %}" class="btn btn-success">
+          <i class="fas fa-credit-card"></i> Thanh toán
+        </a>
+      </div>
+    </div>
+  </form>
+  {% else %}
+    <p class="text-center">Giỏ hàng của bạn đang trống.</p>
+  {% endif %}
+</div>
+{% include "partials/footer.html" %}
+
+<!-- JavaScript: Tự động tính lại tổng tiền khi số lượng thay đổi -->
+<script>
+  function recalcCart() {
+    let total = 0;
+    document.querySelectorAll(".card").forEach(function(card) {
+      const priceElem = card.querySelector(".price");
+      if (!priceElem) return;
+      const price = parseFloat(priceElem.dataset.price);
+      const quantity = parseInt(card.querySelector(".quantity-input").value);
+      const subtotal = price * quantity;
+      card.querySelector(".subtotal").textContent = subtotal.toFixed(2) + " VND";
+      total += subtotal;
+    });
+    document.getElementById("total-price").textContent = total.toFixed(2) + " VND";
+  }
+
+  document.querySelectorAll(".quantity-input").forEach(function(input) {
+    input.addEventListener("change", recalcCart);
+  });
+  recalcCart();
+</script>
+{% endblock %}

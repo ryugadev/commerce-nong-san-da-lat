@@ -1,0 +1,60 @@
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">
+        <i class="fas fa-shopping-bag"></i> My Shop
+      </a>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
+              aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mr-auto">
+          {% if header_categories %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-th-list"></i> Danh mục sản phẩm
+              </a>
+              <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+                {% for cat in header_categories %}
+                  <a class="dropdown-item" href="{% url 'home' %}?category={{ cat.id }}">
+                    <i class="fas fa-list"></i> {{ cat.name }}
+                  </a>
+                {% endfor %}
+              </div>
+            </li>
+          {% endif %}
+        </ul>
+
+        <!-- Tìm kiếm -->
+        <div class="position-relative mr-3" style="min-width: 250px;">
+          <form class="form-inline" action="{% url 'product_search' %}" method="get" id="search-form">
+            <div class="input-group w-100">
+              <input id="search-input" class="form-control" type="search" placeholder="Tìm kiếm sản phẩm" name="q" autocomplete="off">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+          <ul id="suggestions" class="list-group" style="position:absolute; z-index:1000; width:100%; display:none;"></ul>
+        </div>
+
+        <!-- Đăng nhập/Đăng ký -->
+        <ul class="navbar-nav ml-auto">
+          {% if user %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user"></i> Xin chào, {{ user.username }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Đăng ký</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

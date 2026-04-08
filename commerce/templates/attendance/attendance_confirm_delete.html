@@ -1,0 +1,26 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}Xác nhận Xóa Chấm công{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card border-danger shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h3 class="card-title mb-0">
+        <i class="fas fa-trash-alt"></i> Xác nhận Xóa
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>Bạn có chắc chắn muốn xóa bản ghi chấm công của <strong>{{ attendance.employee.full_name }}</strong> ngày {{ attendance.date|date:"d/m/Y" }} không?</p>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-check"></i> Đồng ý
+        </button>
+        <a href="{% url 'attendance_list' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Hủy
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

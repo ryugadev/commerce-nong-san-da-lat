@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Quản lý sản phẩm{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <!-- Nút quay lại Dashboard -->
+  <div class="mb-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Quản lý sản phẩm</h2>
+    </div>
+    <div class="card-body">
+      <!-- Nút thêm sản phẩm -->
+      <div class="mb-3 text-end">
+        <a href="{% url 'product_create' %}" class="btn btn-success">
+          <i class="fas fa-plus"></i> Thêm sản phẩm
+        </a>
+      </div>
+
+      <!-- Form tìm kiếm & lọc -->
+      <form method="get" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+          <label for="q" class="form-label">Tìm kiếm</label>
+          <input type="text" name="q" id="q" class="form-control" placeholder="Nhập từ khóa..." value="{{ query }}">
+        </div>
+        <div class="col-md-3">
+          <label for="category" class="form-label">Danh mục</label>
+          <select name="category" id="category" class="form-select">
+            <option value="">-- Chọn danh mục --</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="supplier" class="form-label">Nhà cung cấp</label>
+          <select name="supplier" id="supplier" class="form-select">
+            <option value="">-- Chọn nhà cung cấp --</option>
+            {% for sup in suppliers %}
+            <option value="{{ sup.id }}" {% if selected_supplier|stringformat:"s" == sup.id|stringformat:"s" %}selected{% endif %}>
+              {{ sup.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-secondary w-100">
+            <i class="fas fa-filter"></i> Lọc
+          </button>
+        </div>
+      </form>
+
+      <!-- Bảng hiển thị sản phẩm -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Tên sản phẩm</th>
+              <th>Danh mục</th>
+              <th>Nhà cung cấp</th>
+              <th>Giá</th>
+              <th>Hình ảnh</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in page_obj %}
+            <tr>
+              <td>{{ product.id|intcomma }}</td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.category.name }}</td>
+              <td>{{ product.supplier.name }}</td>
+              <td>{{ product.price|intcomma }} VND</td>
+              <td>
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 100px;">
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'product_update' product.id %}" class="btn btn-sm btn-warning">
+                  <i class="fas fa-edit"></i> Sửa
+                </a>
+                <a href="{% url 'product_delete' product.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn xóa?');">
+                  <i class="fas fa-trash-alt"></i> Xóa
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center">Không có sản phẩm nào.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân trang -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&category={{ selected_category }}&supplier={{ selected_supplier }}" aria-label="Trước">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}&q={{ query }}&category={{ selected_category }}&supplier={{ selected_supplier }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&category={{ selected_category }}&supplier={{ selected_supplier }}" aria-label="Sau">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

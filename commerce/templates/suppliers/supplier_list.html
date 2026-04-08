@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Nhà cung cấp{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <!-- Header: Nút quay lại Dashboard, tiêu đề và nút thêm nhà cung cấp -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+    <div class="mb-3 mb-md-0">
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Quay lại Dashboard
+      </a>
+    </div>
+    <div class="text-center">
+      <h2 class="mb-0">Quản lý Nhà cung cấp</h2>
+    </div>
+    <div>
+      <a href="{% url 'supplier_create' %}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i> Thêm nhà cung cấp
+      </a>
+    </div>
+  </div>
+
+  <!-- Form tìm kiếm -->
+  <form method="get" class="row g-3 align-items-center mb-4">
+    <div class="col-md-8">
+      <input type="text" name="q" class="form-control" placeholder="Tìm kiếm nhà cung cấp..." value="{{ request.GET.q }}">
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-secondary w-100">
+        <i class="fas fa-search me-1"></i> Tìm kiếm
+      </button>
+    </div>
+  </form>
+
+  <!-- Card chứa bảng danh sách nhà cung cấp -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 10%;">ID</th>
+              <th style="width: 30%;">Tên nhà cung cấp</th>
+              <th style="width: 40%;">Thông tin liên hệ</th>
+              <th style="width: 20%;" class="text-center">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+              <td>{{ supplier.id }}</td>
+              <td>{{ supplier.name }}</td>
+              <td>{{ supplier.contact }}</td>
+              <td class="text-center">
+                <a href="{% url 'supplier_update' supplier.id %}" class="btn btn-sm btn-warning me-1">
+                  <i class="fas fa-edit me-1"></i> Sửa
+                </a>
+                <a href="{% url 'supplier_delete' supplier.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn xóa?');">
+                  <i class="fas fa-trash-alt me-1"></i> Xóa
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">Không có nhà cung cấp nào.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phân trang -->
+  {% if suppliers.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if suppliers.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ suppliers.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      {% endif %}
+      {% for num in suppliers.paginator.page_range %}
+        {% if suppliers.number == num %}
+        <li class="page-item active" aria-current="page">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+      {% if suppliers.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ suppliers.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+<!-- Inline CSS (có thể chuyển ra file CSS riêng) -->
+<style>
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  .btn i {
+    vertical-align: middle;
+  }
+</style>
+{% endblock %}

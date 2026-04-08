@@ -1,0 +1,50 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}Tính Lương - {{ employee.full_name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h3 class="card-title">
+        <i class="fas fa-calculator"></i> Tính Lương cho {{ employee.full_name }} - Tháng {{ month }}/{{ year }}
+      </h3>
+    </div>
+    <div class="card-body">
+      <p><strong>Tổng số giờ làm việc:</strong> {{ total_hours }} giờ</p>
+      <p><strong>Mức lương theo giờ:</strong> {{ hourly_rate|floatformat:2 }} (đơn vị tiền tệ)</p>
+      <p><strong>Lương tính được:</strong> {{ calculated_salary|floatformat:2 }} (đơn vị tiền tệ)</p>
+      <hr>
+      <h5>Chi tiết chấm công:</h5>
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Ngày</th>
+            <th>Giờ vào</th>
+            <th>Giờ ra</th>
+            <th>Số giờ làm</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in attendances %}
+          <tr>
+            <td>{{ record.date|date:"d/m/Y" }}</td>
+            <td>{{ record.check_in }}</td>
+            <td>{{ record.check_out }}</td>
+            <td>{{ record.hours_worked }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">Không có bản ghi chấm công nào.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="mt-3 text-end">
+        <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Quay lại danh sách chấm công
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Xác nhận xóa Flash Sale{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Xác nhận xóa Flash Sale</h2>
+  <p>Bạn có chắc chắn muốn xóa chương trình Flash Sale cho sản phẩm: <strong>{{ flash_sale.product.name }}</strong>?</p>
+  <p>Giảm: {{ flash_sale.discount_percent }}% - Giá Flash Sale: {{ flash_sale.sale_price|floatformat:0 }} VND</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+    <a href="{% url 'flash_sale_list' %}" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
+{% endblock %}

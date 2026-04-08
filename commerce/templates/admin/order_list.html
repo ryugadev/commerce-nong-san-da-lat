@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Đơn hàng{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <a href="{% url 'dashboard' %}" class="btn btn-light">
+        <i class="fas fa-home"></i> Quay lại Dashboard
+      </a>
+      <h3 class="mb-0 text-center flex-grow-1">Quản lý Đơn hàng</h3>
+    </div>
+
+    <div class="card-body">
+      <!-- Form tìm kiếm và bộ lọc -->
+      <form method="GET" class="mb-4">
+          <div class="row g-3">
+            <!-- Tìm kiếm -->
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..." value="{{ query }}">
+              </div>
+            </div>
+
+            <!-- Bộ lọc trạng thái -->
+            <div class="col-md-3">
+              <select name="status" class="form-select">
+                <option value="">-- Lọc trạng thái --</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Chờ xử lý</option>
+                <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>Hoàn thành</option>
+                <option value="cancelled" {% if status_filter == "cancelled" %}selected{% endif %}>Đã hủy</option>
+              </select>
+            </div>
+
+            <!-- Nút lọc -->
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="fas fa-filter"></i> Lọc
+              </button>
+            </div>
+
+            <!-- Xóa bộ lọc -->
+            <div class="col-md-3 text-md-end">
+              <a href="{% url 'order_list' %}" class="btn btn-danger w-100">
+                <i class="fas fa-times"></i> Xóa lọc
+              </a>
+            </div>
+          </div>
+        </form>
+
+
+      {% if orders %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Người đặt</th>
+              <th class="text-end">Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Ngày đặt</th>
+              <th class="text-center">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.user.username }}</td>
+              <td class="text-end">{{ order.total_price|floatformat:2 }} VND</td>
+              <td>
+                {% if order.status == 'pending' %}
+                  <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                {% elif order.status == 'completed' %}
+                  <span class="badge bg-success">Hoàn thành</span>
+                {% elif order.status == 'cancelled' %}
+                  <span class="badge bg-danger">Đã hủy</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+              <td class="text-center">
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-info" title="Xem">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'order_update' order.id %}" class="btn btn-sm btn-warning" title="Sửa">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form action="{% url 'order_delete' order.id %}" method="POST" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger" title="Xóa" onclick="return confirm('Bạn có chắc muốn xóa?')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân trang -->
+  {% if orders.paginator.num_pages > 1 %}
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+
+    <!-- Nút Đầu & Trước -->
+    {% if orders.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page=1&q={{ query }}&status={{ status_filter }}" aria-label="Đầu">
+        <i class="fas fa-angle-double-left"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="?page={{ orders.previous_page_number }}&q={{ query }}&status={{ status_filter }}" aria-label="Trước">
+        <i class="fas fa-angle-left"></i>
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- Hiển thị số trang -->
+    {% for num in orders.paginator.page_range %}
+    {% if orders.paginator.num_pages <= 10 or num <= 5 or num > orders.paginator.num_pages|add:-5 or num >= orders.number|add:-2 and num <= orders.number|add:2 %}
+      {% if orders.number == num %}
+      <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ num }}&q={{ query }}&status={{ status_filter }}">{{ num }}</a>
+      </li>
+      {% endif %}
+    {% elif num == orders.number|add:-3 or num == orders.number|add:3 %}
+      <li class="page-item disabled"><span class="page-link">...</span></li>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Nút Tiếp & Cuối -->
+    {% if orders.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ orders.next_page_number }}&q={{ query }}&status={{ status_filter }}" aria-label="Tiếp">
+        <i class="fas fa-angle-right"></i>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="?page={{ orders.paginator.num_pages }}&q={{ query }}&status={{ status_filter }}" aria-label="Cuối">
+        <i class="fas fa-angle-double-right"></i>
+      </a>
+    </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
+      {% else %}
+      <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i> Hiện không có đơn hàng nào.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

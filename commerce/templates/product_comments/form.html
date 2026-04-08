@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Chỉnh sửa bình luận{% else %}Thêm bình luận{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">
+            {% if form.instance.pk %}Cập nhật{% else %}Thêm mới{% endif %}
+        </button>
+        <a href="{% url 'product_comment_list' %}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}

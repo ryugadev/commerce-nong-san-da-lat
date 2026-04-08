@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Xác nhận xóa bình luận</h2>
+    <p>Bạn có chắc chắn muốn xóa bình luận của <strong>{{ object.user.username }}</strong> về sản phẩm <strong>{{ object.product.name }}</strong> không?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        <a href="{% url 'product_comment_list' %}" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+{% include "partials/header.html" %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Hình ảnh sản phẩm -->
+    <div class="col-md-6">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
+      {% else %}
+        <div class="bg-light d-flex align-items-center justify-content-center" style="height:300px;">
+          <span class="text-muted">No image available</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Thông tin sản phẩm -->
+    <div class="col-md-6">
+      <h2 class="mb-3">{{ product.name }}</h2>
+      <p class="h4 text-success">
+        {% if product.final_price < product.price %}
+          <del class="text-muted">{{ product.price }} VND</del>
+          <span class="text-danger fw-bold">{{ product.final_price }} VND</span>
+        {% else %}
+          <span class="fw-bold">{{ product.price }} VND</span>
+        {% endif %}
+      </p>
+      <p class="mt-4">{{ product.description }}</p>
+
+      <!-- Nút thao tác -->
+      <div class="mt-4">
+        <button class="btn btn-primary btn-lg me-2" onclick="window.location.href='{% url 'cart_add' product.id %}';">
+          <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+        </button>
+        <button class="btn btn-success btn-lg">
+          <i class="fas fa-credit-card"></i> Mua ngay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs thông tin chi tiết sản phẩm -->
+  <div class="mt-5">
+    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail"
+                type="button" role="tab" aria-controls="detail" aria-selected="true">
+          Thông tin chi tiết
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="productTabsContent">
+      <!-- Tab Thông tin chi tiết -->
+      <div class="tab-pane fade show active p-3 border rounded shadow-sm bg-light" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+        {% if detail %}
+          <h4 class="mb-3 text-primary"><i class="fas fa-info-circle"></i> Thông tin chi tiết</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <i class="fas fa-tag text-success"></i> <strong>Thương hiệu:</strong> {{ detail.brand|default:"Chưa có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-industry text-danger"></i> <strong>Nhà sản xuất:</strong> {{ detail.manufacturer|default:"Chưa có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-globe text-warning"></i> <strong>Xuất xứ:</strong> {{ detail.country_of_origin|default:"Chưa có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-weight text-info"></i> <strong>Trọng lượng:</strong> {{ detail.weight|default:"-" }} g
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-tint text-primary"></i> <strong>Thể tích:</strong> {{ detail.volume|default:"-" }} ml
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-box text-secondary"></i> <strong>Loại bao bì:</strong> {{ detail.packaging_type|default:"Chưa có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-list-ul text-success"></i> <strong>Thành phần:</strong> {{ detail.ingredients|default:"Không có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-apple-alt text-danger"></i> <strong>Thông tin dinh dưỡng:</strong> {{ detail.nutrition_facts|default:"Không có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-calendar-alt text-warning"></i> <strong>Hạn sử dụng:</strong> {{ detail.expiration_date|default:"Chưa có thông tin" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-warehouse text-info"></i> <strong>Hướng dẫn bảo quản:</strong> {{ detail.storage_instructions|default:"Không có hướng dẫn" }}
+            </li>
+            <li class="list-group-item">
+              <i class="fas fa-utensils text-primary"></i> <strong>Hướng dẫn sử dụng:</strong> {{ detail.usage_instructions|default:"Không có hướng dẫn" }}
+            </li>
+          </ul>
+        {% else %}
+          <div class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-circle"></i> Sản phẩm này chưa có thông tin chi tiết.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Phần Bình luận sản phẩm -->
+  <div class="mt-5">
+    <h3 class="mb-4"><i class="fas fa-comments"></i> Bình luận về sản phẩm</h3>
+
+
+  {% include 'partials/comment_form.html' %}
+
+
+    <!-- Danh sách bình luận -->
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Các bình luận</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for comment in product_comments %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between">
+            <div>
+              <strong><i class="fas fa-user"></i> {{ comment.user.username }}</strong>
+              <small class="text-muted ms-2"><i class="fas fa-calendar-alt"></i> {{ comment.created_at|date:"d/m/Y H:i" }}</small>
+            </div>
+            <div>
+              <span class="badge bg-warning text-dark"><i class="fas fa-star"></i> {{ comment.rating }}</span>
+            </div>
+          </div>
+          <p class="mt-2">{{ comment.content }}</p>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center">Chưa có bình luận nào.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% include "partials/footer.html" %}
+{% endblock %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Kích hoạt Bootstrap Tab
+    var triggerTabList = [].slice.call(document.querySelectorAll('#productTabs button'))
+    triggerTabList.forEach(function (triggerEl) {
+      var tabTrigger = new bootstrap.Tab(triggerEl)
+      triggerEl.addEventListener('click', function (event) {
+        event.preventDefault()
+        tabTrigger.show()
+      })
+    })
+  });
+</script>
+

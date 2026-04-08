@@ -1,0 +1,40 @@
+<div id="promotionCarousel" class="carousel slide" data-bs-ride="carousel">
+  <!-- Dynamic Indicators -->
+  <div class="carousel-indicators">
+    {% for promo in promotions %}
+      <button type="button" data-bs-target="#promotionCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+              class="{% if forloop.first %}active{% endif %}"
+              aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}">
+      </button>
+    {% endfor %}
+  </div>
+
+  <!-- Carousel Items -->
+  <div class="carousel-inner">
+    {% for promo in promotions %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}">
+        {% if promo.image %}
+          <img src="{{ promo.image.url }}" class="d-block w-100" alt="{{ promo.title }}">
+        {% else %}
+          <div class="d-flex justify-content-center align-items-center bg-secondary" style="height:300px;">
+            <span class="text-white">Không có hình ảnh</span>
+          </div>
+        {% endif %}
+        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+          <h5>{{ promo.title }}</h5>
+          <p>{{ promo.description|truncatewords:20 }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#promotionCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Trước</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#promotionCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Sau</span>
+  </button>
+</div>

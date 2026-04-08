@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Nhà cung cấp{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <!-- Nút quay lại trang trước -->
+  <div class="mb-3">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-arrow-left me-1"></i> Quay lại trang trước
+    </a>
+  </div>
+
+  <!-- Card chứa form -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-gradient-primary text-white py-2">
+          <h4 class="mb-0 text-center" style="font-size:1.25rem;">{{ action }} Nhà cung cấp</h4>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_name" class="form-label" style="font-size:0.9rem;">Tên nhà cung cấp</label>
+              {{ form.name }}
+              {% if form.name.errors %}
+                <div class="text-danger small">
+                  {{ form.name.errors }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="mb-3">
+              <label for="id_contact" class="form-label" style="font-size:0.9rem;">Thông tin liên hệ</label>
+              {{ form.contact }}
+              {% if form.contact.errors %}
+                <div class="text-danger small">
+                  {{ form.contact.errors }}
+                </div>
+              {% endif %}
+            </div>
+            <!-- Nút submit và hủy căn giữa với khoảng cách lớn hơn -->
+            <div class="d-flex justify-content-center gap-3">
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fas fa-save me-1"></i> {{ action }}
+              </button>
+              <a href="{% url 'supplier_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-times me-1"></i> Hủy
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inline CSS (có thể chuyển ra file CSS riêng) -->
+<style>
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #0062E6, #33AEFF);
+  }
+  .card {
+    border-radius: 12px;
+  }
+  .btn, .form-label, .card-header h4 {
+    font-size: 0.9rem;
+  }
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Báo cáo Danh mục</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: "Times New Roman", Times, serif;
+      background-color: #fff;
+      color: #000;
+      margin: 40px auto;
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    .quoc-hieu {
+      margin-top: -30px;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .quoc-hieu b {
+      display: block;
+      font-size: 18px;
+    }
+
+    .tieu-ngu {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 30px 0 20px;
+      text-transform: uppercase;
+      font-size: 20px;
+    }
+
+    .time-location {
+      text-align: right;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #000;
+      padding: 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    button {
+      margin: 30px 0;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2c3e50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #34495e;
+    }
+
+    @media print {
+      button {
+        display: none;
+      }
+    }
+
+    .signature {
+      margin-top: 40px;
+      text-align: right;
+      font-size: 16px;
+    }
+
+    .signature p {
+      margin: 10px 0;
+    }
+
+    .signature em {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tiêu ngữ và Quốc hiệu -->
+  <div class="quoc-hieu">
+    <b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b>
+    <b class="tieu-ngu">Độc lập - Tự do - Hạnh phúc</b>
+    <hr style="width: 250px; margin-top: 8px; border: 1px solid #000;">
+  </div>
+
+  <!-- Thời gian và địa điểm -->
+  <div class="time-location">
+    <em>{{ current_time_str }}</em>
+  </div>
+
+  <!-- Tiêu đề Báo cáo -->
+  <h2>Báo cáo danh mục sản phẩm</h2>
+
+  <!-- Nút in báo cáo -->
+  <button onclick="window.print()">🖨 In báo cáo</button>
+
+  <!-- Bảng báo cáo -->
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tên</th>
+        <th>Mô tả</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in categories %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Phần chữ ký -->
+  <div class="signature">
+    <p><strong>Người lập báo cáo</strong></p>
+    <p><em>(Ký và ghi rõ họ tên)</em></p>
+  </div>
+</body>
+</html>

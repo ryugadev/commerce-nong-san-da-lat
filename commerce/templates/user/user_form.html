@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="card-title mb-0">
+        {% if form.instance.pk %}
+          <i class="fas fa-edit"></i> Cập nhật tài khoản
+        {% else %}
+          <i class="fas fa-plus-circle"></i> Thêm tài khoản
+        {% endif %}
+      </h2>
+    </div>
+    <div class="card-body">
+      <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-success me-2">
+            <i class="fas fa-save"></i> Lưu
+          </button>
+          <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Hủy
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

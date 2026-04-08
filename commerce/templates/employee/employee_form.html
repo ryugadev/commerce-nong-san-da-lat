@@ -1,0 +1,34 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}
+  {% if form.instance.pk %}Cập nhật nhân viên{% else %}Thêm nhân viên{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-info text-white">
+      <h3 class="card-title mb-0">
+        {% if form.instance.pk %}
+          <i class="fas fa-edit"></i> Cập nhật nhân viên
+        {% else %}
+          <i class="fas fa-plus-circle"></i> Thêm nhân viên
+        {% endif %}
+      </h3>
+    </div>
+    <div class="card-body">
+      <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end mt-3">
+          <button type="submit" class="btn btn-success me-2">
+            <i class="fas fa-save"></i> Lưu
+          </button>
+          <a href="{% url 'employee_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Hủy
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

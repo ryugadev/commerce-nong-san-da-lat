@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Sản phẩm Giảm giá{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center mb-4">Sản phẩm Giảm giá</h2>
+  {% if sale_products %}
+  <div class="row gy-4">
+    {% for product in sale_products %}
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text">{{ product.description|truncatewords:20 }}</p>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <span class="text-danger fw-bold">
+            Giá: {{ product.sale_price|floatformat:"-2"|intcomma }} VND
+          </span>
+          <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-sm">Chi tiết</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center">Không có sản phẩm giảm giá nào.</p>
+  {% endif %}
+</div>
+{% endblock %}

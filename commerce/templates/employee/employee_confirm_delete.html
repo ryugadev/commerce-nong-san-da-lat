@@ -1,0 +1,28 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}Xóa nhân viên{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card border-danger shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h3 class="card-title mb-0">
+        <i class="fas fa-trash-alt"></i> Xóa nhân viên
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>Bạn có chắc chắn muốn xóa nhân viên "<strong>{{ employee.full_name }}</strong>" không?</p>
+      <div class="d-flex justify-content-end">
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger me-2">
+            <i class="fas fa-check"></i> Đồng ý
+          </button>
+        </form>
+        <a href="{% url 'employee_list' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Hủy
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

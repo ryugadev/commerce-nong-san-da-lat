@@ -1,0 +1,75 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+{% block title %}Bảng Lương Nhân viên{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Header: Tiêu đề, nút quay về Dashboard -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-primary"><i class="fas fa-money-bill-wave"></i> Bảng Lương Nhân viên</h3>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Quay về Dashboard
+    </a>
+  </div>
+
+  <!-- Form lọc theo tháng, năm -->
+  <form method="GET" class="row g-3 align-items-center mb-3">
+    <div class="col-auto">
+      <label for="month" class="col-form-label">Tháng:</label>
+    </div>
+    <div class="col-auto">
+      <input type="number" name="month" id="month" class="form-control" value="{{ month }}" min="1" max="12">
+    </div>
+    <div class="col-auto">
+      <label for="year" class="col-form-label">Năm:</label>
+    </div>
+    <div class="col-auto">
+      <input type="number" name="year" id="year" class="form-control" value="{{ year }}" min="2000" max="2100">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search"></i> Lọc
+      </button>
+    </div>
+  </form>
+
+  <!-- Bảng lương -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h4 class="card-title mb-0">Bảng lương tháng {{ month }}/{{ year }}</h4>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>STT</th>
+              <th>Nhân viên</th>
+              <th>Lương cơ bản</th>
+              <th>Tổng giờ làm</th>
+              <th>Tiền giờ</th>
+              <th>Lương tính được</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in salary_data %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ item.employee.full_name }}</td>
+              <td>{{ item.employee.salary|floatformat:2 }}</td>
+              <td>{{ item.total_hours|floatformat:2 }}</td>
+              <td>{{ item.hourly_rate|floatformat:2 }}</td>
+              <td>{{ item.calculated_salary|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center">Không có dữ liệu chấm công cho tháng này.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Nếu cần, bạn có thể thêm phân trang nếu dữ liệu lớn -->
+    </div>
+  </div>
+</div>
+{% endblock %}

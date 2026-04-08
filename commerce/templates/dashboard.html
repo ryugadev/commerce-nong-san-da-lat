@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Admin</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- AdminLTE CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fa-solid fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{% url 'dashboard' %}" class="nav-link">Trang chủ</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="{% url 'dashboard' %}" class="brand-link">
+      <i class="fa-solid fa-tools brand-image"></i>
+      <span class="brand-text font-weight-light">Quản Trị</span>
+    </a>
+    <div class="sidebar">
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
+          <li class="nav-item">
+            <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+              <i class="fa-solid fa-chart-pie nav-icon"></i><p>Xem tổng quan</p>
+            </a>
+          </li>
+          <li class="nav-header">QUẢN LÝ SẢN PHẨM</li>
+          <li class="nav-item">
+            <a href="{% url 'product_list' %}" class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+              <i class="fa-solid fa-box-open nav-icon"></i><p>Quản lý sản phẩm</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'category_list' %}" class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">
+              <i class="fa-solid fa-folder nav-icon"></i><p>Quản lý danh mục</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'supplier_list' %}" class="nav-link {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}">
+              <i class="fa-solid fa-industry nav-icon"></i><p>Quản lý nhà cung cấp</p>
+            </a>
+          </li>
+          <li class="nav-header">ĐƠN HÀNG & BÁO CÁO</li>
+          <li class="nav-item">
+            <a href="{% url 'order_list' %}" class="nav-link {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}">
+              <i class="fa-solid fa-file-invoice nav-icon"></i><p>Quản lý đơn hàng</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'revenue_report' %}" class="nav-link {% if request.resolver_match.url_name == 'revenue_report' %}active{% endif %}">
+              <i class="fa-solid fa-chart-line nav-icon"></i><p>Báo cáo doanh thu</p>
+            </a>
+          </li>
+          <li class="nav-header">KHUYẾN MÃI</li>
+          <li class="nav-item">
+            <a href="{% url 'promotion_list' %}" class="nav-link {% if request.resolver_match.url_name == 'promotion_list' %}active{% endif %}">
+              <i class="fa-solid fa-tags nav-icon"></i><p>Quản lý khuyến mãi</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'flash_sale_list' %}" class="nav-link {% if request.resolver_match.url_name == 'flash_sale_list' %}active{% endif %}">
+              <i class="fa-solid fa-bolt nav-icon"></i><p>Flash Sale</p>
+            </a>
+          </li>
+          <li class="nav-header">NGƯỜI DÙNG & NHÂN VIÊN</li>
+          <li class="nav-item">
+            <a href="{% url 'user_list' %}" class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+              <i class="fa-solid fa-users-cog nav-icon"></i><p>Quản lý tài khoản</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'employee_list' %}" class="nav-link {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">
+              <i class="fa-solid fa-user-tie nav-icon"></i><p>Nhân viên</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'salary_list' %}" class="nav-link {% if request.resolver_match.url_name == 'salary_list' %}active{% endif %}">
+              <i class="fa-solid fa-money-bill-wave-alt nav-icon"></i><p>Tiền lương</p>
+            </a>
+          </li>
+          <li class="nav-header">CHẤM CÔNG & CA</li>
+          <li class="nav-item">
+            <a href="{% url 'attendance_create' %}" class="nav-link {% if request.resolver_match.url_name == 'attendance_create' %}active{% endif %}">
+              <i class="fa-solid fa-clock nav-icon"></i><p>Chấm công</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'attendance_list' %}" class="nav-link {% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}">
+              <i class="fa-solid fa-clipboard-list nav-icon"></i><p>Quản lý chấm công</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'auto_assign_shifts' %}" class="nav-link {% if request.resolver_match.url_name == 'auto_assign_shifts' %}active{% endif %}">
+              <i class="fa-solid fa-calendar-alt nav-icon"></i><p>Phân ca tự động</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'auto_assign_weekly_shifts' %}" class="nav-link {% if request.resolver_match.url_name == 'auto_assign_weekly_shifts' %}active{% endif %}">
+              <i class="fa-solid fa-calendar-week nav-icon"></i><p>Phân ca tuần</p>
+            </a>
+          </li>
+          <li class="nav-item mt-3">
+            <a href="{% url 'logout' %}" class="nav-link bg-danger text-white">
+              <i class="fa-solid fa-arrow-right-from-bracket nav-icon"></i><p>Đăng xuất</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <section class="content-header">
+      <div class="container-fluid"><h1><i class="fa-solid fa-user-circle"></i> Chào mừng, {{ user.username }}!</h1></div>
+    </section>
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-4 col-6">
+            <div class="small-box bg-primary">
+              <div class="inner"><h3>{{ total_users }}</h3><p>Tổng số người dùng</p></div>
+              <div class="icon"><i class="fa-solid fa-users"></i></div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+              <div class="inner"><h3>{{ total_admins }}</h3><p>Admin</p></div>
+              <div class="icon"><i class="fa-solid fa-user-shield"></i></div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-6">
+            <div class="small-box bg-info">
+              <div class="inner"><h3>{{ total_customers }}</h3><p>Khách hàng</p></div>
+              <div class="icon"><i class="fa-solid fa-user-friends"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card"><div class="card-header"><h3 class="card-title"><i class="fa-solid fa-chart-bar"></i> Doanh thu</h3></div><div class="card-body"><canvas id="barChart"></canvas></div></div>
+          </div>
+          <div class="col-md-6">
+            <div class="card"><div class="card-header"><h3 class="card-title"><i class="fa-solid fa-chart-line"></i> Tiền lương</h3></div><div class="card-body"><canvas id="lineChart"></canvas></div></div>
+          </div>
+          <div class="col-12">
+            <div class="card"><div class="card-header"><h3 class="card-title"><i class="fa-solid fa-chart-pie"></i> Đơn hàng vs Bình luận</h3></div><div class="card-body text-center"><canvas id="pieChart" style="max-width:400px;margin:0 auto;"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer"><div class="float-right d-none d-sm-inline">Dashboard Admin</div><strong>© 2025 Your Company.</strong></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const rev = JSON.parse('{{ revenue_data|escapejs }}');
+  const wage = JSON.parse('{{ wage_data|escapejs }}');
+  const ord = JSON.parse('{{ order_data|escapejs }}');
+  const com = JSON.parse('{{ comment_data|escapejs }}');
+  new Chart(document.getElementById('barChart').getContext('2d'),{type:'bar',data:{labels:rev.labels,datasets:[{label:'Doanh thu',data:rev.data}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});
+  new Chart(document.getElementById('lineChart').getContext('2d'),{type:'line',data:{labels:wage.labels,datasets:[{label:'Tiền lương',data:wage.data}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});
+  new Chart(document.getElementById('pieChart').getContext('2d'),{type:'pie',data:{labels:['Đơn hàng','Bình luận'],datasets:[{data:[ord.count,com.count]}]},options:{responsive:true}});
+</script>
+</body>
+</html>
