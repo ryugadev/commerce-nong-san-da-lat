@@ -7,10 +7,12 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
-class User(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=128)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    # Các trường username, password, email đã được AbstractUser cung cấp
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
+    
     def __str__(self):
         return self.username
 

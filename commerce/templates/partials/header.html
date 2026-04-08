@@ -1,60 +1,215 @@
-<header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'home' %}">
-        <i class="fas fa-shopping-bag"></i> My Shop
-      </a>
+<header class="dalat-header sticky-top bg-white">
+  <style>
+    /* Dalat Farm Header Styles */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    .dalat-header {
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border-bottom: 3px solid #28a745; /* Forest Green Line */
+    }
+    
+    .dalat-brand {
+      color: #28a745 !important;
+      font-weight: 800;
+      font-size: 1.7rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.2s;
+    }
+    .dalat-brand:hover {
+      opacity: 0.85;
+      text-decoration: none;
+    }
+    .dalat-brand i {
+      font-size: 1.8rem;
+      margin-right: 8px;
+      color: #28a745;
+      text-shadow: 0 2px 4px rgba(40,167,69,0.2);
+    }
 
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
-              aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    /* Navbar Link Styles */
+    .dalat-navbar .nav-link {
+      color: #475569 !important;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      transition: color 0.2s;
+    }
+    .dalat-navbar .nav-link:hover, .dalat-navbar .nav-link.active {
+      color: #28a745 !important;
+    }
 
-      <div class="collapse navbar-collapse" id="navbarContent">
-        <ul class="navbar-nav mr-auto">
-          {% if header_categories %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-th-list"></i> Danh mục sản phẩm
-              </a>
-              <div class="dropdown-menu" aria-labelledby="categoryDropdown">
-                {% for cat in header_categories %}
-                  <a class="dropdown-item" href="{% url 'home' %}?category={{ cat.id }}">
-                    <i class="fas fa-list"></i> {{ cat.name }}
-                  </a>
-                {% endfor %}
-              </div>
-            </li>
-          {% endif %}
-        </ul>
+    /* Clean Search Bar */
+    .dalat-search {
+      width: 100%;
+      border-radius: 50px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      overflow: hidden;
+    }
+    .dalat-search:focus-within {
+      border-color: #28a745;
+      box-shadow: 0 0 0 3px rgba(40,167,69,0.1);
+      background: #ffffff;
+    }
+    .dalat-search .form-control {
+      border: none;
+      background: transparent;
+      padding-left: 20px;
+      font-size: 0.95rem;
+      box-shadow: none !important;
+    }
+    .dalat-search .btn {
+      border: none;
+      background: transparent;
+      color: #28a745;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+    }
+    .dalat-search .btn:hover {
+      color: #1e7e34;
+    }
 
-        <!-- Tìm kiếm -->
-        <div class="position-relative mr-3" style="min-width: 250px;">
-          <form class="form-inline" action="{% url 'product_search' %}" method="get" id="search-form">
-            <div class="input-group w-100">
-              <input id="search-input" class="form-control" type="search" placeholder="Tìm kiếm sản phẩm" name="q" autocomplete="off">
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
+    /* Icon Actions (User, Cart) */
+    .dalat-action-item {
+      display: flex;
+      align-items: center;
+      color: #475569;
+      font-weight: 600;
+      margin-left: 20px;
+      text-decoration: none !important;
+      transition: transform 0.2s, color 0.2s;
+    }
+    .dalat-action-item:hover {
+      color: #28a745;
+      transform: translateY(-2px);
+    }
+    .dalat-icon-circle {
+      width: 42px;
+      height: 42px;
+      background: #f1f8f3;
+      color: #28a745;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-right: 10px;
+    }
+    .dalat-action-item:hover .dalat-icon-circle {
+      background: #28a745;
+      color: #ffffff;
+    }
+
+    /* Dropdown menu */
+    .dropdown-menu-farm {
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-top: 10px;
+      padding: 10px;
+    }
+    .dropdown-item-farm {
+      border-radius: 8px;
+      font-weight: 500;
+      color: #334155;
+      padding: 8px 15px;
+      transition: background 0.2s;
+    }
+    .dropdown-item-farm:hover {
+      background-color: #f1f8f3;
+      color: #28a745;
+    }
+  </style>
+
+  <nav class="navbar navbar-expand-lg dalat-navbar py-2 py-lg-3 container">
+    <!-- Brand Logo -->
+    <a class="navbar-brand dalat-brand mr-lg-5" href="{% url 'home' %}">
+      <i class="fas fa-leaf"></i> DaLat Farm
+    </a>
+
+    <!-- Mobile Toggler -->
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-toggle="collapse" data-target="#navbarContent"
+            aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation" style="color: #28a745;">
+      <i class="fas fa-bars" style="font-size: 1.5rem;"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Category Dropdown -->
+      <ul class="navbar-nav mr-auto">
+        {% if header_categories %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-list-ul mr-2" style="color: #28a745;"></i> Nông sản
+            </a>
+            <div class="dropdown-menu dropdown-menu-farm border-0" aria-labelledby="categoryDropdown">
+              {% for cat in header_categories %}
+                <a class="dropdown-item dropdown-item-farm" href="{% url 'home' %}?category={{ cat.id }}">
+                  <i class="fas fa-seedling mr-2 text-success"></i> {{ cat.name }}
+                </a>
+              {% endfor %}
             </div>
-          </form>
-          <ul id="suggestions" class="list-group" style="position:absolute; z-index:1000; width:100%; display:none;"></ul>
-        </div>
+          </li>
+        {% endif %}
+      </ul>
 
-        <!-- Đăng nhập/Đăng ký -->
-        <ul class="navbar-nav ml-auto">
-          {% if user %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="fas fa-user"></i> Xin chào, {{ user.username }}</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
-          {% else %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Đăng ký</a></li>
-          {% endif %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Giỏ hàng</a></li>
-        </ul>
+      <!-- Central Search Box -->
+      <div class="mx-lg-auto my-3 my-lg-0 mx-0 position-relative" style="flex: 0 1 450px;">
+        <form action="{% url 'product_search' %}" method="get" id="search-form" class="m-0">
+          <div class="dalat-search">
+            <input id="search-input" class="form-control" type="search" placeholder="Tìm kiếm nông sản, trái cây sạch..." name="q" autocomplete="off">
+            <button class="btn" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
+        <ul id="suggestions" class="list-group" style="position:absolute; z-index:1000; width:100%; display:none; border-radius: 12px; margin-top: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);"></ul>
       </div>
+
+      <!-- Right Actions (Login/Cart) -->
+      <ul class="navbar-nav ml-auto align-items-lg-center">
+        {% if user %}
+          <li class="nav-item mb-2 mb-lg-0">
+            <a class="dalat-action-item" href="{% url 'profile' %}">
+              <div class="dalat-icon-circle"><i class="fas fa-user-check"></i></div>
+              <span class="d-none d-xl-inline">{{ user.username|truncatechars:10 }}</span>
+            </a>
+          </li>
+          <li class="nav-item mb-2 mb-lg-0">
+            <a class="dalat-action-item" href="{% url 'logout' %}" style="color: #ef4444;">
+              <div class="dalat-icon-circle" style="background:#fef2f2; color:#ef4444;"><i class="fas fa-sign-out-alt"></i></div>
+              <span class="d-none d-xl-inline">Thoát</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item mb-2 mb-lg-0">
+            <a class="dalat-action-item" href="{% url 'login' %}">
+              <div class="dalat-icon-circle"><i class="fas fa-user"></i></div>
+              <span class="d-none d-lg-inline">Đăng nhập</span>
+            </a>
+          </li>
+        {% endif %}
+
+        <li class="nav-item pl-lg-2 border-lg-left ml-lg-2">
+          <a class="dalat-action-item" href="{% url 'cart' %}">
+            <div class="dalat-icon-circle position-relative">
+              <i class="fas fa-shopping-basket"></i>
+              <!-- Giả lập badge số lượng giỏ hàng, nếu có context biến cart_count thì tích hợp tại đây -->
+              {% if request.session.cart %}
+                <span class="position-absolute badge badge-danger rounded-circle" style="top: -2px; right: -5px; font-size: 0.7rem; border: 2px solid white;">
+                  {{ request.session.cart|length }}
+                </span>
+              {% endif %}
+            </div>
+            <span class="d-none d-lg-inline">Giỏ hàng</span>
+          </a>
+        </li>
+      </ul>
     </div>
   </nav>
 </header>

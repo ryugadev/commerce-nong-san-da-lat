@@ -9,8 +9,8 @@ from .forms import ProductForm, CategoryForm, SupplierForm
 from .forms import OrderForm, OrderItemForm
 from django.db.models import Sum, Avg
 import datetime
+from django.utils import timezone
 from .models import Order
-
 
 # --- Trang chủ ---
 def home(request):
@@ -20,11 +20,12 @@ def home(request):
         start_date__lte=timezone.now().date(),
         end_date__gte=timezone.now().date()
     )
-    # Lấy các flash sale đang được kích hoạt
+    # Lấy các flash sale đang được kích hoạt (Sử dụng timezone.now() để so sánh chính xác theo thời gian thực)
+    now = timezone.now()
     flash_sales = FlashSale.objects.filter(
         active=True,
-        start_date__lte=timezone.now().date(),
-        end_date__gte=timezone.now().date()
+        start_date__lte=now,
+        end_date__gte=now
     )
     context = {
         'products': products,
@@ -132,13 +133,16 @@ def dashboard(request):
         "count": ProductComment.objects.filter(is_deleted=False).count()
     }
 
+    # Lấy 5 đơn hàng mới nhất
+    recent_orders = Order.objects.all().order_by('-created_at')[:5]
+
     context = {
         'user': user,
         'total_users': total_users,
         'total_admins': total_admins,
         'total_customers': total_customers,
         'product_details': product_details_page,
-        # Dữ liệu thống kê cho biểu đồ (chuyển sang JSON)
+        'recent_orders': recent_orders,
         'revenue_data': json.dumps(revenue_data),
         'wage_data': json.dumps(wage_data),
         'order_data': json.dumps(order_data),
@@ -192,26 +196,37 @@ def product_detail(request, pk):
     }
     return render(request, 'products/product_detail.html', context)
 
-# --- Xác thực người dùng ---
+from django.contrib.auth import authenticate, login, logout
+
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        try:
-            user = User.objects.get(username=username, password=password)
+        
+        # Sử dụng hàm authenticate của Django
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Đăng nhập vào hệ thống
+            login(request, user)
+            
+            # Gán thêm dữ liệu session tùy chỉnh nếu hệ thống cũ đang phụ thuộc
             request.session['user_id'] = user.id
             request.session['username'] = user.username
+            
             messages.success(request, "Đăng nhập thành công.")
-            if user.role.name.lower() == 'admin':
+            if getattr(user, 'role', None) and user.role.name.lower() == 'admin':
                 return redirect('dashboard')
             else:
                 return redirect('home')
-        except User.DoesNotExist:
-            messages.error(request, "Sai thông tin đăng nhập.")
+        else:
+            messages.error(request, "Sai tên đăng nhập hoặc mật khẩu.")
+            
     return render(request, 'login-user.html')
 
 def logout_view(request):
+    logout(request)
     request.session.flush()
     return redirect('home')
 
@@ -231,9 +246,26 @@ def register_view(request):
                 messages.error(request, "Tên đăng nhập đã tồn tại.")
             except User.DoesNotExist:
                 role, created = Role.objects.get_or_create(name="user")
-                User.objects.create(username=username, password=password, role=role)
-                messages.success(request, "Đăng ký thành công. Vui lòng đăng nhập.")
-                return redirect('login')
+                
+                # Khởi tạo user và mã hoá mật khẩu
+                user = User(username=username, role=role)
+                user.set_password(password)
+                user.save()
+                
+                # Tự động đăng nhập sau khi đăng ký thành công
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    
+                    # Cập nhật session cho tương thích hệ thống cũ đang dùng manual session nếu cần
+                    request.session['user_id'] = user.id
+                    request.session['username'] = user.username
+                    
+                    messages.success(request, f"Chào mừng {username}! Đăng ký và đăng nhập thành công.")
+                    return redirect('home')
+                else:
+                    messages.error(request, "Đã xảy ra lỗi trong quá trình tự động đăng nhập.")
+                    return redirect('login')
     return render(request, 'register.html')
 
 @csrf_exempt
@@ -371,6 +403,59 @@ def cart_remove(request, pk):
 #     }
 #     return render(request, 'checkout.html', context)
 def checkout(request):
+    # 1. Nhận product_id từ URL (GET request)
+    product_id = request.GET.get('product_id')
+    
+    if product_id:
+        # 2. Sử dụng Product.objects.filter(id=product_id).first() thay cho get_object_or_404
+        product = Product.objects.filter(id=product_id, is_deleted=False).first()
+        
+        if product is None:
+            # 3. Nếu sản phẩm trả về là None, dùng messages để hiện thông báo và redirect về trang chủ
+            messages.error(request, 'Sản phẩm không khả dụng')
+            return redirect('home')
+            
+        # Chuẩn bị dữ liệu hiển thị (giả lập giống cấu trúc giỏ hàng để frontend dùng chung)
+        price = product.current_price
+        order_items = [{
+            'product': product,
+            'quantity': 1,
+            'subtotal': price
+        }]
+        total_price = price
+        
+        # Nếu người dùng submit form Thanh toán
+        if request.method == 'POST':
+            # Tương thích auth mới và manual session cũ
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                user_id = request.session.get('user_id')
+                if not user_id:
+                    messages.error(request, "Bạn cần đăng nhập để thanh toán.")
+                    return redirect('login')
+                user = get_object_or_404(User, id=user_id)
+            
+            # Tạo đơn hàng mới
+            order = Order.objects.create(user=user, total_price=total_price, status='paid')
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=1,
+                price=price
+            )
+            # Làm rỗng giỏ hàng
+            if 'cart' in request.session:
+                request.session['cart'].clear()
+                request.session.modified = True
+            messages.success(request, 'Chúc mừng! Đơn hàng của bạn tại DaLat Farm đã được đặt thành công. Chúng tôi sẽ liên hệ sớm!')
+            return redirect('home')
+
+        # Trả về template với context chứa thông tin sản phẩm
+        context = {'order_items': order_items, 'total_price': total_price}
+        return render(request, 'checkout.html', context)
+
+    # 4. Nếu không có product_id (Luồng Thanh toán từ Giỏ hàng mặc định)
     cart = request.session.get('cart', {})
     if not cart:
         messages.error(request, "Giỏ hàng của bạn đang trống.")
@@ -379,8 +464,12 @@ def checkout(request):
     total_price = 0
     order_items = []
     for pk, quantity in cart.items():
-        product = get_object_or_404(Product, pk=pk, is_deleted=False)
-        price = product.current_price  # Dùng giá đã cập nhật theo Flash Sale nếu có
+        # Dùng filter().first() thay vì get_object_or_404
+        product = Product.objects.filter(id=pk, is_deleted=False).first()
+        if product is None:
+            continue
+            
+        price = product.current_price  # Giá có thể là giá gốc hoặc giảm giá Flash Sale
         subtotal = price * quantity
         total_price += subtotal
         order_items.append({
@@ -390,22 +479,30 @@ def checkout(request):
         })
 
     if request.method == 'POST':
-        user_id = request.session.get('user_id')
-        if not user_id:
-            messages.error(request, "Bạn cần đăng nhập để thanh toán.")
-            return redirect('login')
-        user = get_object_or_404(User, id=user_id)
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user_id = request.session.get('user_id')
+            if not user_id:
+                messages.error(request, "Bạn cần đăng nhập để thanh toán.")
+                return redirect('login')
+            user = get_object_or_404(User, id=user_id)
+            
         order = Order.objects.create(user=user, total_price=total_price, status='paid')
+        
         for item in order_items:
             OrderItem.objects.create(
                 order=order,
                 product=item['product'],
                 quantity=item['quantity'],
-                price=item['product'].current_price  # Ghi lại giá đã cập nhật
+                price=item['product'].current_price
             )
-        request.session['cart'] = {}
-        messages.success(request, f"Đơn hàng {order.id} của bạn đã được đặt thành công!")
-        return redirect('order_history')
+        # Tiến hành làm rỗng giỏ hàng sau khi đặt thành công
+        if 'cart' in request.session:
+            request.session['cart'].clear()
+            request.session.modified = True
+        messages.success(request, 'Chúc mừng! Đơn hàng của bạn tại DaLat Farm đã được đặt thành công. Chúng tôi sẽ liên hệ sớm!')
+        return redirect('home')
 
     context = {'order_items': order_items, 'total_price': total_price}
     return render(request, 'checkout.html', context)
